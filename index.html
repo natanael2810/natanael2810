@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Lápiz Pro</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+padding-top:70px;
+background:#f8f9fa;
+}
+
+.hero{
+background:#FACC15;
+padding:80px;
+text-align:center;
+}
+
+.hero h1{
+margin-bottom:15px;
+}
+
+.card{
+margin-top:20px;
+transition:0.3s;
+}
+
+.card:hover{
+transform:scale(1.05);
+}
+
+.card img{
+height:250px;
+object-fit:contain;
+padding:10px;
+}
+
+footer{
+background:#2563EB;
+color:white;
+padding:15px;
+text-align:center;
+margin-top:30px;
+}
+
+button:focus,
+a:focus,
+input:focus,
+textarea:focus{
+outline:3px solid black;
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<!-- MENÚ -->
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+
+<div class="container">
+
+<a class="navbar-brand" href="#">
+✏️ Lápiz Pro
+</a>
+
+<button
+class="navbar-toggler"
+type="button"
+data-bs-toggle="collapse"
+data-bs-target="#menu">
+
+<span class="navbar-toggler-icon"></span>
+
+</button>
+
+<div class="collapse navbar-collapse" id="menu">
+
+<ul class="navbar-nav ms-auto">
+
+<li class="nav-item">
+
+<a
+class="nav-link"
+href="#"
+onclick="mostrar('inicio')">
+
+Inicio
+
+</a>
+
+</li>
+
+
+<li class="nav-item">
+
+<a
+class="nav-link"
+href="#"
+onclick="mostrar('productos')">
+
+Productos
+
+</a>
+
+</li>
+
+
+<li class="nav-item">
+
+<a
+class="nav-link"
+href="#"
+onclick="mostrar('contacto')">
+
+Contacto
+
+</a>
+
+</li>
+
+</ul>
+
+</div>
+
+</div>
+
+</nav>
+
+
+
+<!-- CONTENIDO SPA -->
+
+<div id="app"></div>
+
+
+
+<footer>
+
+<p>
+© 2026 Lápiz Pro
+</p>
+
+</footer>
+
+
+
+<script>
+
+async function cargarProductos(){
+
+let tiempoInicio=Date.now();
+
+document.getElementById(
+"productosAPI"
+).innerHTML=`
+
+<div class="text-center mt-5">
+
+<div
+class="spinner-border text-primary"
+role="status">
+</div>
+
+<p>
+Cargando productos...
+</p>
+
+</div>
+
+`;
+
+try{
+
+let respuesta=await fetch(
+'https://fakestoreapi.com/products?limit=6'
+);
+
+if(!respuesta.ok){
+
+throw new Error(
+"Error API"
+);
+
+}
+
+let datos=
+await respuesta.json();
+
+let tiempoFinal=
+Date.now();
+
+let tiempo=
+(tiempoFinal-tiempoInicio)/1000;
+
+let productos=`
+
+<p class="text-success">
+
+Tiempo de carga:
+${tiempo} segundos
+
+</p>
+
+`;
+
+datos.forEach(producto=>{
+
+productos+=`
+
+<div class="col-md-4">
+
+<div class="card">
+
+<img
+src="${producto.image}"
+class="card-img-top"
+alt="${producto.title}">
+
+<div class="card-body">
+
+<h5>
+${producto.title}
+</h5>
+
+<p>
+RD$
+${Math.round(producto.price*60)}
+</p>
+
+<button
+class="btn btn-primary"
+onclick="verProducto('${producto.title}')">
+
+Ver producto
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+document.getElementById(
+"productosAPI"
+).innerHTML=
+productos;
+
+}
+
+catch(error){
+
+document.getElementById(
+"productosAPI"
+).innerHTML=`
+
+<div class="alert alert-danger">
+
+Error al cargar productos.
+
+Verifique su conexión.
+
+</div>
+
+`;
+
+console.log(error);
+
+}
+
+}
+
+
+
+function mostrar(seccion){
+
+let app=
+document.getElementById(
+"app"
+);
+
+if(seccion=="inicio"){
+
+app.innerHTML=`
+
+<section class="hero">
+
+<h1>
+
+Bienvenido a Lápiz Pro
+
+</h1>
+
+<p>
+
+Los mejores materiales escolares
+
+</p>
+
+<br>
+
+<button
+class="btn btn-primary"
+onclick="mostrar('productos')">
+
+Ver productos
+
+</button>
+
+</section>
+
+`;
+
+}
+
+
+
+else if(seccion=="productos"){
+
+app.innerHTML=`
+
+<div class="container">
+
+<h2 class="text-center mt-4">
+
+Nuestros Productos
+
+</h2>
+
+<div
+class="row"
+id="productosAPI">
+
+</div>
+
+</div>
+
+`;
+
+cargarProductos();
+
+}
+
+
+
+else if(seccion=="contacto"){
+
+app.innerHTML=`
+
+<div class="container mt-5">
+
+<h2>
+
+Contacto
+
+</h2>
+
+<form
+onsubmit="validar(event)">
+
+<label>
+Nombre:
+</label>
+
+<input
+id="nombre"
+class="form-control"
+type="text"
+placeholder="Tu nombre">
+
+<br>
+
+<label>
+Correo:
+</label>
+
+<input
+id="correo"
+class="form-control"
+type="email"
+placeholder="Tu correo">
+
+<br>
+
+<label>
+Mensaje:
+</label>
+
+<textarea
+class="form-control"
+placeholder="Escribe tu mensaje">
+</textarea>
+
+<br>
+
+<button
+class="btn btn-primary">
+
+Enviar
+
+</button>
+
+</form>
+
+</div>
+
+`;
+
+}
+
+}
+
+
+
+function validar(event){
+
+event.preventDefault();
+
+let nombre=
+document.getElementById(
+"nombre"
+).value;
+
+let correo=
+document.getElementById(
+"correo"
+).value;
+
+if(
+nombre=="" ||
+correo==""
+){
+
+alert(
+"Complete todos los campos"
+);
+
+}
+
+else{
+
+alert(
+"Formulario enviado correctamente"
+);
+
+}
+
+}
+
+
+
+function verProducto(nombre){
+
+alert(
+"Producto seleccionado: "
++nombre
+);
+
+}
+
+
+
+mostrar("inicio");
+
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
